@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Leitor de QR Code</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+<body>
+  <h1>Leitor de QR Code</h1>
+  <div id="reader" width="600px"></div>
+  <script>
+    // IP do ESP32
+    const esp32Ip = 'http://192.168.55.1/qrcode';
+
+    function onScanSuccess(decodedText, decodedResult) {
+      alert("QR Code lido: " + decodedText);
+
+      // Enviar o QR code lido para o ESP32
+      fetch(`${esp32Ip}?data=${encodeURIComponent(decodedText)}`)
+        .then(response => response.text())
+        .then(data => {
+          console.log('Resposta do ESP32:', data);
+        })
+        .catch(error => console.error('Erro ao enviar QR code para o ESP32:', error));
+    }
+    
+    function onScanError(errorMessage) {
+      console.warn("QR Code scan falhou. Razão: ", errorMessage);
+    }
+
+    // Inicia o leitor de QR code
+    var html5QrCode = new Html5Qrcode("reader");
+    html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, onScanSuccess, onScanError);
+  </script>
+</body>
+</html>
